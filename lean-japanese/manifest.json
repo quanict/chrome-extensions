@@ -1,0 +1,32 @@
+{
+	"manifest_version": 2,
+	"name": "Lean Japanese",
+	"version": "0.1",
+
+	"icons": { "32": "torii-32.png" },
+	"content_scripts": 
+	[
+		{
+  		"matches": [
+  			"<all_urls>"
+	    ],
+	    "js": ["content.js"]
+	  }
+	],
+
+	"browser_action": {
+		"default_title": "",
+		"default_popup": "hello.html",
+		"default_icon": "torii-32.png"
+    },
+
+    "commands": {
+      "_execute_browser_action": {
+        "suggested_key": {
+          "default": "Ctrl+Shift+F",
+          "mac": "MacCtrl+Shift+F"
+        },
+        "description": "Opens hello.html"
+      }
+    }
+}
