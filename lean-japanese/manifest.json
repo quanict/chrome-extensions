@@ -1,24 +1,27 @@
 {
 	"manifest_version": 2,
 	"name": "Lean Japanese",
-	"version": "0.1",
+	"version": "0.0.1",
 
-	"icons": { "32": "torii-32.png" },
-	"content_scripts": 
-	[
-		{
-  		"matches": [
-  			"<all_urls>"
-	    ],
-	    "js": ["content.js"]
-	  }
+	"icons": { 
+		"32": "img/torii-32.png"
+	},
+	
+	
+	"permissions": [
+	    "<all_urls>",
+	    "storage",
+	    "declarativeContent",
+		"contextMenus",
+	    "declarativeWebRequest",
+	     "*://*/*"
+	    
 	],
-
-	"browser_action": {
-		"default_title": "",
-		"default_popup": "hello.html",
-		"default_icon": "torii-32.png"
-    },
+	// "browser_action": {
+	// 	"default_title": "",
+	// 	"default_popup": "hello.html",
+	// 	"default_icon": "img/torii-32.png"
+ //    },
 
     "commands": {
       "_execute_browser_action": {
@@ -28,5 +31,31 @@
         },
         "description": "Opens hello.html"
       }
-    }
+    },
+
+	"background": {
+		"scripts": ["js/background.js","background/context-menu.js"],
+		"persistent": false
+	},
+	"web_accessible_resources": ["style.css"]
+	,"content_scripts": [
+		{
+			"all_frames": true,
+			"js": ["js/kanji/com_j-dict.js"],
+			"matches": [
+				"http://j-dict.com/kanji.htm"
+			],
+			"run_at": "document_idle"
+		}
+	]
+
+	// "content_scripts": 
+	// [
+	// 	{
+ //  		"matches": [
+ //  			"<all_urls>"
+	//     ],
+	//     "js": ["content.js"]
+	//   }
+	// ],
 }
