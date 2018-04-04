@@ -11,6 +11,7 @@
 	"permissions": [
 	    "<all_urls>",
 	    "storage",
+
 	    "declarativeContent",
 		"contextMenus",
 	    "declarativeWebRequest",
@@ -41,7 +42,7 @@
 	,"content_scripts": [
 		{
 			"all_frames": true,
-			"js": ["js/kanji/com_j-dict.js"],
+			"js": ["js/lib/jquery-3.3.1.min.js","js/kanji/com_j-dict.js"],
 			"matches": [
 				"http://j-dict.com/kanji.htm"
 			],
