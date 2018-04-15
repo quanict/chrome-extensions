@@ -1,80 +1,83 @@
 let ajaxLoading = false;
-function postICTJapan(data){
-	//console.log("send data",JSON.stringify(data) );
+$.ajaxSetup({
+    url: "http://jp.giaiphapict.loc/api/kanjiword",
+    global: false,
+    type: "POST",
+	crossDomain:true,
+    cache:true,
+    async:true,
+    success: function(msg){
+        getKanjiStatus();
+        ajaxLoading = false;
+    },
+    error: function(jxhr){
+        console.log(jxhr);
 
-    $( document ).ajaxStart(function() {
-        ajaxLoading = true;
-    });
+    }
+});
 
-    $.ajaxSetup({
-        url: "http://jp.giaiphapict.loc/api/kanjiword",
-        global: false,
-        type: "POST",
-		crossDomain:true,
-        cache:true,
-        async:true,
-        success: function(msg){
-            console.log(msg);
-        },
-        error: function(jxhr){
-            console.log(jxhr);
+$( document ).ajaxStart(function() {
+    ajaxLoading = true;
+});
 
-        }
-    });
-	if( !ajaxLoading ){
-        $.ajax({data: data});
-	}
-}
-
-
-
-function getKanjiChar(){
-    Node.prototype.getNodesText = function(tagName) {
-        let text = [], that = this, tags = tagName;
-        if( typeof tagName === 'object' && tagName.length > 0 ){
-            let tagFirst = tags[0].toString(), tagsLeft = tagName.filter(item => item !== tagFirst);
-            if( tagsLeft.length > 0 ){
-                try {
-                    let tags = that.getElementsByTagName(tagFirst.toUpperCase());
-                    if( tags.length > 0 ){
-                        for (let tag of tags ) {
-                            text.push( tag.getNodesText(tagsLeft) );
-                        }
+Node.prototype.getNodesText = function(tagName) {
+    let text = [], that = this, tags = tagName;
+    if( typeof tagName === 'object' && tagName.length > 0 ){
+        let tagFirst = tags[0].toString(), tagsLeft = tagName.filter(item => item !== tagFirst);
+        if( tagsLeft.length > 0 ){
+            try {
+                let tags = that.getElementsByTagName(tagFirst.toUpperCase());
+                if( tags.length > 0 ){
+                    for (let tag of tags ) {
+                        text.push( tag.getNodesText(tagsLeft) );
                     }
                 }
-                catch(err) {
-                    console.log("have error",{that,err});
-                }
+            }
+            catch(err) {
+                console.log("have error",{that,err});
+            }
 
-            } else {
-                let nodeTexts = that.getNodesText(tagFirst);
-                text = [...text,...nodeTexts];
-            }
-        } else if ( typeof tagName === 'string') {
-            let texts = that.getElementsByTagName(tagName.toUpperCase());
-            if( texts.length > 0 ){
-                for (var w of texts ) {
-                    text.push(w.innerText);
-                }
-            }
         } else {
-            console.log("tagname line-42 :",{tagName,that});
+            let nodeTexts = that.getNodesText(tagFirst);
+            text = [...text,...nodeTexts];
         }
-        return text;
-    };
+    } else if ( typeof tagName === 'string') {
+        let texts = that.getElementsByTagName(tagName.toUpperCase());
+        if( texts.length > 0 ){
+            for (var w of texts ) {
+                text.push(w.innerText);
+            }
+        }
+    } else {
+        console.log("tagname line-42 :",{tagName,that});
+    }
+    return text;
+};
 
+
+let kanjiChecking = "";
+function getKanjiChar(){
+    
 	let kanjiDetail = Array.from(document.querySelectorAll(".dekiru-popup-detail"));
+
 	if( kanjiDetail.length > 0 ){
 		kanjiDetail = kanjiDetail[0];
+		//console.log("get kanji",kanjiDetail.innerHTML);
 		if( kanjiDetail.innerHTML.length > 0 ){
 			let data = {
                 word : document.querySelectorAll(".dekiru-popup-detail .qqq.japan-font")[0].innerText,
                 chinese : document.querySelectorAll(".dekiru-popup-detail .qqe")[0].innerText,
 				//svg : document.getElementById("drawkanji").innerHTML,
                 vietnamese:null, onyomi:null,kunyomi:null,
-				parts:[],remembering:{image:null,explain:null}
+				parts:[],remembering:{image:null,text:null}
 				//content : document.querySelectorAll(".dekiru-popup-detail .kanji-search-block")[0].innerHTML,
 			};
+
+			if( kanjiChecking === data.word ){
+				return true;
+			} else {
+				kanjiChecking = data.word;
+			}
 
 			let searchData = Array.from(document.querySelectorAll(".dekiru-popup-detail .kanji-search-block"));
 			for (let i = 0; i < searchData.length; i++) {
@@ -101,6 +104,7 @@ function getKanjiChar(){
 						case "Hình ảnh gợi nhớ":
 							let img = testData.getElementsByTagName("IMG");
 							if( img.length > 0 ){
+								console.log("bug img",{img,testData});
 								data.remembering.image = img[0].src;	
 							}
 							break;
@@ -124,7 +128,7 @@ function getKanjiChar(){
 									case "Số nét":
 										data.stroke = searchValue[0].innerText;break;
 									case "Cách ghi nhớ":
-										data.remembering.explain = searchValue[0].innerText;
+										data.remembering.text = searchValue[0].innerText;
 										break;
 									default:
 										console.log("check data "+i+":",{label,testData});
@@ -140,11 +144,33 @@ function getKanjiChar(){
 				}
 				
 			}
-            postICTJapan(data);
+	        $.ajax({data: data});
 		}
 		
 	}
 }
+
+function getKanjiStatus(){
+	let chars = $("#kanji-filter-result .kanji-in-list-item > div.img");
+	console.log('bug',chars);
+	$.each( chars, function() {
+		let char = $(this);
+	    $.ajax({data: {txt:char.attr("data-text")},type: "GET",
+	        success: function(data){
+	        	if( typeof data === 'object' && data.status ){
+	        		char.css({'background':'#33b874'});
+	        	}
+	    	}
+    	});
+	
+	});
+}
+$( document ).ready(function() {
+    getKanjiStatus();
+    $('#kanji-filter-result .btn-small').click(function(){
+    	kanjiChecking = "";
+    });
+});
 
 let kanjModaliArea = document.querySelectorAll(".dekiru-popup-detail");
 Array.from(kanjModaliArea).forEach(function(node) {
