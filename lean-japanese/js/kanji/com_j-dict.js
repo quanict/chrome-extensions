@@ -1,6 +1,6 @@
 let ajaxLoading = false;
 $.ajaxSetup({
-    url: "http://jp.giaiphapict.loc/api/kanjiword",
+    url: "https://jp.giaiphapict.loc/api/kanjichar",
     global: false,
     type: "POST",
 	crossDomain:true,
@@ -8,6 +8,7 @@ $.ajaxSetup({
     async:true,
     success: function(msg){
         getKanjiStatus();
+        console.log(msg);
         ajaxLoading = false;
     },
     error: function(jxhr){
@@ -57,9 +58,7 @@ Node.prototype.getNodesText = function(tagName) {
 
 let kanjiChecking = "";
 function getKanjiChar(){
-    
 	let kanjiDetail = Array.from(document.querySelectorAll(".dekiru-popup-detail"));
-
 	if( kanjiDetail.length > 0 ){
 		kanjiDetail = kanjiDetail[0];
 		//console.log("get kanji",kanjiDetail.innerHTML);
@@ -104,8 +103,7 @@ function getKanjiChar(){
 						case "Hình ảnh gợi nhớ":
 							let img = testData.getElementsByTagName("IMG");
 							if( img.length > 0 ){
-								console.log("bug img",{img,testData});
-								data.remembering.image = img[0].src;	
+								data.remembering.image = img[0].src;
 							}
 							break;
 						case "Onyomi":
@@ -144,15 +142,18 @@ function getKanjiChar(){
 				}
 				
 			}
+			data.source = "j-dict.com";
 	        $.ajax({data: data});
 		}
 		
+	} else {
+		console.log("no see kanjiDetail",{kanjiDetail});
 	}
 }
 
 function getKanjiStatus(){
 	let chars = $("#kanji-filter-result .kanji-in-list-item > div.img");
-	console.log('bug',chars);
+	console.log("getKanjiStatus",{chars});
 	$.each( chars, function() {
 		let char = $(this);
 	    $.ajax({data: {txt:char.attr("data-text")},type: "GET",
