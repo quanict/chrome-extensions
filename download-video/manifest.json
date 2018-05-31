@@ -1,0 +1,42 @@
+{
+	"manifest_version": 2,
+	"name": "Lean Japanese",
+	"version": "0.0.1",
+
+	"icons": { 
+		"32": "img/torii-32.png"
+	},
+	
+	
+	"permissions": [
+	    "<all_urls>",
+	    "storage",
+	    "declarativeContent",
+		"contextMenus",
+	    "declarativeWebRequest",
+	     "*://*/*"
+	    
+	],
+    "commands": {
+      "_execute_browser_action": {
+        "suggested_key": {
+          "default": "Ctrl+Shift+F",
+          "mac": "MacCtrl+Shift+F"
+        },
+        "description": "Opens hello.html"
+      }
+    },
+
+	"web_accessible_resources": ["style.css"]
+	,"content_scripts": [
+		{
+			"all_frames": true,
+			"js": ["js/lib/jquery-3.3.1.min.js","js/video/pornhub.js"],
+			"matches": [
+				"*://*.pornhub.com/*"
+			],
+			"run_at": "document_idle"
+		}
+	]
+
+}
